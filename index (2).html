@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Bot Status</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#000; --ink:#ededed; --muted:#8a928d; --line:#1f2421;
+  --ok:#3fd49a; --bad:#ff6b6b; --warn:#f0b955; --accent:#3fd49a;
+  --font:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5;min-height:100vh}
+main{max-width:760px;margin:0 auto;padding:clamp(20px,5vw,56px) clamp(16px,4vw,32px)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:.95rem}
+header b{color:var(--ink);font-weight:600}
+.dot{display:inline-block;width:.6em;height:.6em;border-radius:50%;background:var(--muted);margin-right:.5em}
+.on .dot{background:var(--ok);animation:pulse 2s infinite}
+.off .dot{background:var(--bad)}
+.stale .dot{background:var(--warn)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,212,154,.6)}70%{box-shadow:0 0 0 .6em rgba(63,212,154,0)}100%{box-shadow:0 0 0 0 rgba(63,212,154,0)}}
+.btn{color:var(--ink);text-decoration:none;font-weight:600;border:1px solid var(--line);border-radius:6px;padding:6px 16px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+h1{font-size:clamp(2.6rem,10vw,5.2rem);line-height:1;letter-spacing:-.03em;font-weight:800;margin:clamp(28px,6vw,56px) 0 8px}
+.on h1{color:var(--ok)} .off h1{color:var(--bad)} .stale h1{color:var(--warn)}
+.sub{color:var(--muted);margin:0 0 28px;font-size:1.05rem}
+.pulse{border-block:1px solid var(--line);padding:14px 0 6px}
+.pulse svg{display:block;width:100%;height:96px}
+.pulse path{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.pulse .area{fill:var(--accent);opacity:.1;stroke:none}
+.pulse p{display:flex;justify-content:space-between;gap:12px;margin:6px 0 0;font-size:.85rem;color:var(--muted)}
+dl{margin:28px 0 0;display:grid;grid-template-columns:1fr auto;gap:0}
+dt,dd{margin:0;padding:14px 0;border-bottom:1px solid var(--line)}
+dt{color:var(--muted)}
+dd{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;word-break:break-word}
+footer{margin-top:24px;color:var(--muted);font-size:.85rem}
+#err{color:var(--bad);margin-top:12px;font-size:.9rem}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.dot{animation:none!important}}
+</style>
+</head>
+<body>
+<main id="root" class="stale">
+  <header>
+    <span><span class="dot"></span><b id="name">Bot</b></span>
+    <a class="btn" href="admin.html">Log in</a>
+  </header>
+
+  <h1 id="state">Loading…</h1>
+  <p class="sub" id="sub">Fetching the latest data.</p>
+
+  <section class="pulse" aria-label="Ping history">
+    <svg id="chart" viewBox="0 0 600 96" preserveAspectRatio="none" role="img" aria-label="Ping chart">
+      <path class="area" id="area"/><path id="line"/>
+    </svg>
+    <p><span>Ping history</span><span id="range">–</span></p>
+  </section>
+
+  <dl>
+    <dt>Username</dt><dd id="username">–</dd>
+    <dt>Status</dt><dd id="status">–</dd>
+    <dt>Ping</dt><dd id="ping">–</dd>
+    <dt>Servers</dt><dd id="guilds">–</dd>
+    <dt>Last update</dt><dd id="updated">–</dd>
+  </dl>
+  <div id="err" role="status"></div>
+  <footer id="foot"></footer>
+</main>
+
+<script>
+/* ============ SETTINGS ============ */
+const CONFIG = {
+  // Only public fields are requested here. Leave DATA_URL empty for demo mode.
+  DATA_URL: "https://kgupwuinbzlehopvvntu.supabase.co/rest/v1/bot_status?select=name,username,status,ping,guilds,updated_at&id=eq.1",
+  HEADERS: { apikey: "sb_publishable_It2zKEHriV_E_tDAUFoG4Q_gKU_tSRu" },
+  REFRESH_MS: 10000,      // how often the page checks for new data
+  OFFLINE_AFTER_S: 90     // data older than this is shown as offline
+};
+
+const $ = id => document.getElementById(id);
+const fmt = n => n == null ? "–" : Number(n).toLocaleString("en-US");
+let history = [];
+try { history = JSON.parse(localStorage.getItem("pingHistory") || "[]"); } catch (e) {}
+
+function ago(ms){
+  const s = Math.max(0, Math.round(ms/1000));
+  if (s < 5) return "just now";
+  if (s < 60) return s + " seconds ago";
+  if (s < 3600) return Math.floor(s/60) + " min ago";
+  if (s < 86400) return Math.floor(s/3600) + " h ago";
+  return Math.floor(s/86400) + " d ago";
+}
+function normalize(r){
+  if (Array.isArray(r)) r = r[0] || {};
+  const t = v => v == null ? null : (typeof v === "number" ? v : Date.parse(v));
+  return { name:r.name, username:r.username, status:r.status, ping:r.ping, guilds:r.guilds, updatedAt:t(r.updated_at ?? r.updatedAt) };
+}
+function demo(){
+  return { name:"Demo Bot", username:"DemoBot#0000", status:"online", ping:38 + Math.round(Math.random()*40), guilds:12, updatedAt:Date.now() };
+}
+function setState(cls, title, sub){
+  $("root").className = cls; $("state").textContent = title; $("sub").textContent = sub;
+}
+function drawChart(){
+  const pts = history.slice(-60);
+  if (pts.length < 2){ $("line").setAttribute("d",""); $("area").setAttribute("d",""); $("range").textContent = "Waiting for data…"; return; }
+  const vals = pts.map(p => p.v), max = Math.max(...vals, 50), min = Math.min(...vals, 0);
+  const x = i => (i/(pts.length-1))*600, y = v => 86 - ((v-min)/(max-min||1))*76;
+  const d = pts.map((p,i) => (i?"L":"M") + x(i).toFixed(1) + " " + y(p.v).toFixed(1)).join(" ");
+  $("line").setAttribute("d", d);
+  $("area").setAttribute("d", d + " L600 96 L0 96 Z");
+  $("range").textContent = "low " + Math.min(...vals) + " ms, high " + Math.max(...vals) + " ms";
+}
+function render(b){
+  $("name").textContent = b.name || "Bot";
+  document.title = (b.name || "Bot") + " – Status";
+  $("username").textContent = b.username || "–";
+  $("ping").textContent = b.ping != null ? b.ping + " ms" : "–";
+  $("guilds").textContent = fmt(b.guilds);
+  const age = b.updatedAt ? Date.now() - b.updatedAt : Infinity;
+  $("updated").textContent = b.updatedAt ? ago(age) : "–";
+  const reportedOffline = b.status === "offline";
+  if (reportedOffline || age > CONFIG.OFFLINE_AFTER_S*1000){
+    setState("off", "Offline", b.updatedAt ? "Last seen " + ago(age) + "." : "No data from the bot yet.");
+    $("status").textContent = "Offline";
+  } else {
+    setState("on", "Online", "The bot is up and responding.");
+    $("status").textContent = "Online";
+    if (b.ping != null && b.updatedAt && !history.some(p => p.t === b.updatedAt)){
+      history.push({t:b.updatedAt, v:b.ping}); history = history.slice(-120);
+      try { localStorage.setItem("pingHistory", JSON.stringify(history)); } catch (e) {}
+    }
+  }
+  drawChart();
+}
+let last = {};
+async function load(){
+  try {
+    if (!CONFIG.DATA_URL){ last = demo(); $("foot").textContent = "Demo mode: set CONFIG.DATA_URL in index.html for real data."; }
+    else {
+      const res = await fetch(CONFIG.DATA_URL, { headers: CONFIG.HEADERS, cache:"no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      last = normalize(await res.json());
+    }
+    $("err").textContent = "";
+  } catch (e) {
+    $("err").textContent = "Could not fetch data (" + e.message + "). Showing the last known data.";
+  }
+  render(last);
+}
+setInterval(() => render(last), 1000);
+load(); setInterval(load, CONFIG.REFRESH_MS);
+</script>
+</body>
+</html>
