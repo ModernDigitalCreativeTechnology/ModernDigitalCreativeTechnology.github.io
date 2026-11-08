@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-black text-slate-100">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,134 +8,236 @@
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-    <script>tailwind.config={theme:{extend:{fontFamily:{sans:['"Plus Jakarta Sans"','sans-serif'],mono:['"JetBrains Mono"','monospace']}}}}</script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], mono: ['"JetBrains Mono"', 'monospace'] } } } }</script>
     <style>
-        @keyframes slideDownFade{0%{opacity:0;transform:translateY(-40px)}100%{opacity:1;transform:translateY(0)}}
-        @keyframes slideUpFade{0%{opacity:0;transform:translateY(40px)}100%{opacity:1;transform:translateY(0)}}
-        .animate-slide-down{animation:slideDownFade 5s cubic-bezier(0.16,1,0.3,1) forwards}
-        .animate-slide-up{animation:slideUpFade 5s cubic-bezier(0.16,1,0.3,1) forwards}
-        body{font-family:'Plus Jakarta Sans',sans-serif;margin:0;padding:0;user-select:none}
-        nav a{white-space:nowrap}
-        ::-webkit-scrollbar{width:4px;background:transparent}
-        ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
-    
-        /* Content starts invisible; JS makes it visible after bg renders */
+        @keyframes slideDownFade {
+            0% {
+                opacity: 0;
+                transform: translateY(-40px)
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes slideUpFade {
+            0% {
+                opacity: 0;
+                transform: translateY(40px)
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .animate-slide-down {
+            animation: slideDownFade 5s cubic-bezier(0.16, 1, 0.3, 1) forwards
+        }
+
+        .animate-slide-up {
+            animation: slideUpFade 5s cubic-bezier(0.16, 1, 0.3, 1) forwards
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            user-select: none
+        }
+
+        nav a {
+            white-space: nowrap
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px
+        }
+
         #page-content {
             opacity: 0;
             pointer-events: none;
         }
+
         #page-content.reveal {
             pointer-events: auto;
         }
-        /* Fade-in for the whole content block */
+
         #page-content.fade-in {
             animation: contentFadeIn 0.6s ease forwards;
         }
+
         @keyframes contentFadeIn {
-            0%  { opacity:0; }
-            100%{ opacity:1; }
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
-        /* Slide animations only fire after reveal */
+
         #page-content.reveal .animate-slide-down {
-            animation: slideDownFade 1.4s cubic-bezier(0.16,1,0.3,1) forwards;
+            animation: slideDownFade 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
         #page-content.reveal .animate-slide-up {
-            animation: slideUpFade 1.4s cubic-bezier(0.16,1,0.3,1) forwards;
+            animation: slideUpFade 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     </style>
 </head>
+
 <body class="min-h-full w-full relative bg-black text-slate-100">
 
     <canvas id="particleCanvas" class="fixed inset-0 z-0 w-full h-full pointer-events-none"></canvas>
 
     <div id="page-content" class="relative z-10 flex flex-col min-h-screen px-6 sm:px-12 lg:px-16 py-8">
 
-        <!-- Header -->
-        <header class="animate-slide-down flex items-center justify-between w-full border-b border-white/[0.08] pb-6 mb-12">
+        <header
+            class="animate-slide-down flex items-center justify-between w-full border-b border-white/[0.08] pb-6 mb-12">
             <a href="index.html" class="flex items-center gap-3 group flex-shrink-0">
-                <img src="img/MDCT.png" class="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-105" alt="MDCT">
+                <img src="img/MDCT.png"
+                    class="w-20 h-20 object-contain transition-transform duration-300 group-hover:scale-105" alt="MDCT">
             </a>
             <nav class="flex items-center gap-6 sm:gap-8">
-                <a href="index.html"    class="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Home</a>
-                <a href="products.html" class="text-sm font-medium text-white transition-colors whitespace-nowrap">Product &amp; Services</a>
-                <a href="disbot.html"   class="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Dis Bot</a>
-                <a href="contact.html"  class="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Contact</a>
-                <a href="login.html"    class="px-5 py-2.5 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-md border border-white/20 rounded-md text-xs font-semibold text-white tracking-wider uppercase transition-all duration-300 hover:border-white/60 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] whitespace-nowrap">Login</a>
+                <a href="index.html"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Home</a>
+                <a href="products.html"
+                    class="text-sm font-medium text-white transition-colors whitespace-nowrap">Product &amp;
+                    Services</a>
+                <a href="disbot.html"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Dis
+                    Bot</a>
+                <a href="contact.html"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Contact</a>
+                <a href="login.html"
+                    class="px-5 py-2.5 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-md border border-white/20 rounded-md text-xs font-semibold text-white tracking-wider uppercase transition-all duration-300 hover:border-white/60 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] whitespace-nowrap">Login</a>
             </nav>
         </header>
 
-        <!-- Page Content -->
         <main class="animate-slide-up flex-1">
             <div class="mb-12">
-                <span class="inline-flex items-center gap-2 px-3 py-1 bg-white/[0.04] border border-white/10 rounded-sm text-xs font-mono text-slate-300 uppercase tracking-widest mb-4">
+                <span
+                    class="inline-flex items-center gap-2 px-3 py-1 bg-white/[0.04] border border-white/10 rounded-sm text-xs font-mono text-slate-300 uppercase tracking-widest mb-4">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                     What We Offer
                 </span>
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight mt-3">
+                <h1
+                    class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight mt-3">
                     Product &amp; Services
                 </h1>
                 <p class="mt-4 text-slate-400 text-lg font-light max-w-2xl">
-                    From the stage to the server — MDCT covers every layer of your event and digital needs.
+                    From the stage to the server
+                    <br>
+                    covers every layer of your event and digital needs.
                 </p>
             </div>
 
-            <!-- Hardware Section -->
             <div class="mb-14">
-                <h2 class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-6 border-b border-white/[0.06] pb-3">— Event Hardware</h2>
+                <h2
+                    class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-6 border-b border-white/[0.06] pb-3">
+                    — Event Hardware</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Card -->
-                    <div class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
-                        <div class="text-2xl mb-3">💡</div>
-                        <h3 class="font-semibold text-white mb-2">Lighting Consoles &amp; Fixtures</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">Premium lighting desks and high-end moving head fixtures for any venue size. We supply, program, and operate everything from intimate setups to arena-scale rigs.</p>
+                    <div
+                        class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
+                        <div class="text-2xl mb-3">
+                            <h3 class="font-semibold text-white mb-2">Lighting Consoles &amp; Fixtures</h3>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">Premium lighting desks and high-end
+                            fixtures for any venue size. We supply, program, and operate everything from intimate
+                            setups to arena-scale rigs.</p>
                     </div>
-                    <div class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
-                        <div class="text-2xl mb-3">📺</div>
-                        <h3 class="font-semibold text-white mb-2">LED Display Rental</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">State-of-the-art indoor and outdoor LED walls available for concerts, corporate events, product launches, and exhibitions. Custom configurations on request.</p>
+                    <div
+                        class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
+                        <div class="text-2xl mb-3">
+                            <h3 class="font-semibold text-white mb-2">LED Display Rental</h3>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">State-of-the-art indoor and outdoor LED walls
+                            available for concerts, corporate events, product launches, and exhibitions. Custom
+                            configurations on request.</p>
                     </div>
-                    <div class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
-                        <div class="text-2xl mb-3">🔊</div>
-                        <h3 class="font-semibold text-white mb-2">Pro Audio Systems</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">Full line array systems, subwoofers, monitoring, and mixing desks sourced from top-tier brands. Our audio engineers handle everything from deployment to live mix.</p>
+                    <div
+                        class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
+                        <div class="text-2xl mb-3">
+                            <h3 class="font-semibold text-white mb-2">Pro Audio Systems</h3>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">Full line array systems, subwoofers,
+                            monitoring, and mixing desks sourced from top-tier brands. Our audio engineers handle
+                            everything from deployment to live mix.</p>
                     </div>
-                    <div class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
-                        <div class="text-2xl mb-3">🏗️</div>
-                        <h3 class="font-semibold text-white mb-2">Stage Rigging &amp; Trussing</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">Certified rigging crews and structural truss solutions for safe, load-compliant aerial installations. We handle ground-supported and fly-system configurations.</p>
+                    <div
+                        class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
+                        <div class="text-2xl mb-3">
+                            <h3 class="font-semibold text-white mb-2">Stage Rigging &amp; Trussing</h3>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">Certified rigging crews and structural truss
+                            solutions for safe, load-compliant aerial installations. We handle ground-supported and
+                            fly-system configurations.</p>
                     </div>
-                    <div class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
-                        <div class="text-2xl mb-3">🎭</div>
-                        <h3 class="font-semibold text-white mb-2">Decorative Production</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">Bespoke set design, draping, floral concepts, and themed decor executed by our creative production team. Every detail tailored to your event's identity.</p>
+                    <div
+                        class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
+                        <div class="text-2xl mb-3">
+                            <h3 class="font-semibold text-white mb-2">Decorative Production</h3>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">Bespoke set design, draping, floral concepts,
+                            and themed decor executed by our creative production team. Every detail tailored to your
+                            event's identity.</p>
                     </div>
-                    <div class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
-                        <div class="text-2xl mb-3">🎪</div>
-                        <h3 class="font-semibold text-white mb-2">Full Event Production</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">End-to-end event management combining all hardware disciplines with on-site coordination. One team, one contract, zero compromises on execution.</p>
+                    <div
+                        class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300 group">
+                        <div class="text-2xl mb-3">
+                            <h3 class="font-semibold text-white mb-2">Full Event Production</h3>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">End-to-end event management combining all
+                            hardware disciplines with on-site coordination. One team, one contract, zero compromises on
+                            execution.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Software Section -->
             <div class="mb-14">
-                <h2 class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-6 border-b border-white/[0.06] pb-3">— Digital Engineering</h2>
+                <h2
+                    class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-6 border-b border-white/[0.06] pb-3">
+                    — Digital Engineering</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300">
-                        <div class="text-2xl mb-3">🌐</div>
-                        <h3 class="font-semibold text-white mb-2">Full-Stack Web Development</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">Custom web applications built from the ground up — React, Next.js, Node.js, and more. Scalable architecture, clean code, and designs that convert.</p>
+                    <div
+                        class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300">
+                        <div class="text-2xl mb-3">
+                            <h3 class="font-semibold text-white mb-2">Full-Stack Web Development</h3>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">Custom web applications built from the ground
+                            up — React, Next.js, Node.js, and more. Scalable architecture, clean code, and designs that
+                            convert.</p>
                     </div>
-                    <div class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300">
-                        <div class="text-2xl mb-3">🤖</div>
-                        <h3 class="font-semibold text-white mb-2">Discord Bot Development</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">Feature-rich bots tailored to your community — moderation, AI integration, custom commands, role management, analytics, and event automation.</p>
+                    <div
+                        class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300">
+                        <div class="text-2xl mb-3">
+                            <h3 class="font-semibold text-white mb-2">Discord Bot Development</h3>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">Feature-rich bots tailored to your community —
+                            moderation, AI integration, custom commands, role management, analytics, and event
+                            automation.</p>
                     </div>
-                    <div class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300">
-                        <div class="text-2xl mb-3">⚙️</div>
-                        <h3 class="font-semibold text-white mb-2">Backend &amp; API Engineering</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">REST and GraphQL APIs, database design, authentication systems, and cloud deployments built for reliability under real-world load.</p>
+                    <div
+                        class="p-6 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300">
+                        <div class="text-2xl mb-3">
+                            <h3 class="font-semibold text-white mb-2">Backend &amp; API Engineering</h3>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed">REST and GraphQL APIs, database design,
+                            authentication systems, and cloud deployments built for reliability under real-world load.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -146,46 +249,49 @@
     </div>
 
     <script>
-    /* ── Reveal page content after background renders (~1.5s) ── */
-    (function(){
-        const DELAY_MS = 200;
-        const revealAt = performance.now() + DELAY_MS;
-        let revealed = false;
-        function checkReveal() {
-            if (!revealed && performance.now() >= revealAt) {
-                revealed = true;
-                const el = document.getElementById('page-content');
-                if (el) el.classList.add('reveal', 'fade-in');
-            }
-            if (!revealed) requestAnimationFrame(checkReveal);
-        }
-        requestAnimationFrame(checkReveal);
-    })();
+            (function () {
+                const DELAY_MS = 200;
+                const revealAt = performance.now() + DELAY_MS;
+                let revealed = false;
+                function checkReveal() {
+                    if (!revealed && performance.now() >= revealAt) {
+                        revealed = true;
+                        const el = document.getElementById('page-content');
+                        if (el) el.classList.add('reveal', 'fade-in');
+                    }
+                    if (!revealed) requestAnimationFrame(checkReveal);
+                }
+                requestAnimationFrame(checkReveal);
+            })();
 
-    (function(){
-        const canvas=document.getElementById('particleCanvas');if(!canvas)return;
-        const ctx=canvas.getContext('2d');
-        let W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
-        const hexR=38,hexW=Math.sqrt(3)*hexR,hexRS=hexR*1.5;
-        let mouse={x:-1000,y:-1000};
-        window.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
-        window.addEventListener('resize',()=>{W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight});
-        const pts=[];for(let i=0;i<40;i++)pts.push({x:Math.random()*W,y:Math.random()*H,size:Math.random()*5+3,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,angle:Math.random()*Math.PI*2,vRot:(Math.random()-.5)*.012,type:Math.floor(Math.random()*3)});
-        function hex(x,y,r){ctx.beginPath();for(let i=0;i<6;i++){const a=(Math.PI/3)*i-(Math.PI/6);if(!i)ctx.moveTo(x+r*Math.cos(a),y+r*Math.sin(a));else ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a));}ctx.closePath();}
-        function dp(p){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=0.9;
-            if(p.type===0){ctx.beginPath();ctx.moveTo(0,-p.size);ctx.lineTo(p.size*.6,0);ctx.lineTo(0,p.size);ctx.lineTo(-p.size*.6,0);ctx.closePath();ctx.stroke();}
-            else if(p.type===1){const s=p.size*.7;ctx.beginPath();ctx.rect(-s/2,-s/2,s,s);ctx.stroke();}
-            else{ctx.beginPath();ctx.moveTo(0,-p.size*.8);ctx.lineTo(p.size*.7,p.size*.6);ctx.lineTo(-p.size*.7,p.size*.6);ctx.closePath();ctx.stroke();}
-            ctx.restore();}
-        function render(){
-            ctx.clearRect(0,0,W,H);
-            const cols=Math.ceil(W/hexW)+3,rows=Math.ceil(H/hexRS)+3;
-            for(let r=-1;r<rows;r++){const y=r*hexRS,xo=(r%2!==0)?hexW/2:0;for(let c=-1;c<cols;c++){const x=c*hexW+xo,dx=x-mouse.x,dy=y-mouse.y,d=Math.sqrt(dx*dx+dy*dy);let a=0.02;if(d<500)a=0.03+(1-d/500)*.035;ctx.strokeStyle=`rgba(255,255,255,${a})`;ctx.lineWidth=0.6;hex(x,y,hexR);ctx.stroke();}}
-            for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<150){ctx.strokeStyle=`rgba(255,255,255,${(1-d/150)*.18})`;ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}}
-            for(const p of pts){p.x+=p.vx;p.y+=p.vy;p.angle+=p.vRot;if(p.x<-20)p.x=W+20;if(p.x>W+20)p.x=-20;if(p.y<-20)p.y=H+20;if(p.y>H+20)p.y=-20;dp(p);}
-            requestAnimationFrame(render);}
-        render();
-    })();
+        (function () {
+            const canvas = document.getElementById('particleCanvas'); if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let W = canvas.width = window.innerWidth, H = canvas.height = window.innerHeight;
+            const hexR = 38, hexW = Math.sqrt(3) * hexR, hexRS = hexR * 1.5;
+            let mouse = { x: -1000, y: -1000 };
+            window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY });
+            window.addEventListener('resize', () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight });
+            const pts = []; for (let i = 0; i < 40; i++)pts.push({ x: Math.random() * W, y: Math.random() * H, size: Math.random() * 5 + 3, vx: (Math.random() - .5) * .4, vy: (Math.random() - .5) * .4, angle: Math.random() * Math.PI * 2, vRot: (Math.random() - .5) * .012, type: Math.floor(Math.random() * 3) });
+            function hex(x, y, r) { ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = (Math.PI / 3) * i - (Math.PI / 6); if (!i) ctx.moveTo(x + r * Math.cos(a), y + r * Math.sin(a)); else ctx.lineTo(x + r * Math.cos(a), y + r * Math.sin(a)); } ctx.closePath(); }
+            function dp(p) {
+                ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.angle); ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 0.9;
+                if (p.type === 0) { ctx.beginPath(); ctx.moveTo(0, -p.size); ctx.lineTo(p.size * .6, 0); ctx.lineTo(0, p.size); ctx.lineTo(-p.size * .6, 0); ctx.closePath(); ctx.stroke(); }
+                else if (p.type === 1) { const s = p.size * .7; ctx.beginPath(); ctx.rect(-s / 2, -s / 2, s, s); ctx.stroke(); }
+                else { ctx.beginPath(); ctx.moveTo(0, -p.size * .8); ctx.lineTo(p.size * .7, p.size * .6); ctx.lineTo(-p.size * .7, p.size * .6); ctx.closePath(); ctx.stroke(); }
+                ctx.restore();
+            }
+            function render() {
+                ctx.clearRect(0, 0, W, H);
+                const cols = Math.ceil(W / hexW) + 3, rows = Math.ceil(H / hexRS) + 3;
+                for (let r = -1; r < rows; r++) { const y = r * hexRS, xo = (r % 2 !== 0) ? hexW / 2 : 0; for (let c = -1; c < cols; c++) { const x = c * hexW + xo, dx = x - mouse.x, dy = y - mouse.y, d = Math.sqrt(dx * dx + dy * dy); let a = 0.02; if (d < 500) a = 0.03 + (1 - d / 500) * .035; ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = 0.6; hex(x, y, hexR); ctx.stroke(); } }
+                for (let i = 0; i < pts.length; i++)for (let j = i + 1; j < pts.length; j++) { const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y, d = Math.sqrt(dx * dx + dy * dy); if (d < 150) { ctx.strokeStyle = `rgba(255,255,255,${(1 - d / 150) * .18})`; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke(); } }
+                for (const p of pts) { p.x += p.vx; p.y += p.vy; p.angle += p.vRot; if (p.x < -20) p.x = W + 20; if (p.x > W + 20) p.x = -20; if (p.y < -20) p.y = H + 20; if (p.y > H + 20) p.y = -20; dp(p); }
+                requestAnimationFrame(render);
+            }
+            render();
+        })();
     </script>
 </body>
+
 </html>
