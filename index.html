@@ -1,163 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-black text-slate-100 overflow-hidden">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark">
-<title>Bot Status</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
-<style>
-:root{
-  color-scheme:dark;
-  --bg:#000; --ink:#ededed; --muted:#8a928d; --line:#1f2421;
-  --ok:#3fd49a; --bad:#ff6b6b; --warn:#f0b955; --accent:#3fd49a;
-  --font:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;
-}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5;min-height:100vh}
-main{max-width:760px;margin:0 auto;padding:clamp(20px,5vw,56px) clamp(16px,4vw,32px)}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:.95rem}
-header b{color:var(--ink);font-weight:600}
-.dot{display:inline-block;width:.6em;height:.6em;border-radius:50%;background:var(--muted);margin-right:.5em}
-.on .dot{background:var(--ok);animation:pulse 2s infinite}
-.off .dot{background:var(--bad)}
-.stale .dot{background:var(--warn)}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,212,154,.6)}70%{box-shadow:0 0 0 .6em rgba(63,212,154,0)}100%{box-shadow:0 0 0 0 rgba(63,212,154,0)}}
-.btn{color:var(--ink);text-decoration:none;font-weight:600;border:1px solid var(--line);border-radius:6px;padding:6px 16px}
-.btn:hover{border-color:var(--accent);color:var(--accent)}
-h1{font-size:clamp(2.6rem,10vw,5.2rem);line-height:1;letter-spacing:-.03em;font-weight:800;margin:clamp(28px,6vw,56px) 0 8px}
-.on h1{color:var(--ok)} .off h1{color:var(--bad)} .stale h1{color:var(--warn)}
-.sub{color:var(--muted);margin:0 0 28px;font-size:1.05rem}
-.pulse{border-block:1px solid var(--line);padding:14px 0 6px}
-.pulse svg{display:block;width:100%;height:96px}
-.pulse path{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
-.pulse .area{fill:var(--accent);opacity:.1;stroke:none}
-.pulse p{display:flex;justify-content:space-between;gap:12px;margin:6px 0 0;font-size:.85rem;color:var(--muted)}
-dl{margin:28px 0 0;display:grid;grid-template-columns:1fr auto;gap:0}
-dt,dd{margin:0;padding:14px 0;border-bottom:1px solid var(--line)}
-dt{color:var(--muted)}
-dd{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;word-break:break-word}
-footer{margin-top:24px;color:var(--muted);font-size:.85rem}
-#err{color:var(--bad);margin-top:12px;font-size:.9rem}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-@media (prefers-reduced-motion:reduce){.dot{animation:none!important}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDCT</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <script>tailwind.config={theme:{extend:{fontFamily:{sans:['"Plus Jakarta Sans"','sans-serif'],mono:['"JetBrains Mono"','monospace']}}}}</script>
+    <style>
+        @keyframes slideDownFade { 0%{opacity:0;transform:translateY(-40px)} 100%{opacity:1;transform:translateY(0)} }
+        @keyframes slideUpFade   { 0%{opacity:0;transform:translateY(40px)}  100%{opacity:1;transform:translateY(0)} }
+
+        body { font-family:'Plus Jakarta Sans',sans-serif; margin:0; padding:0; overflow:hidden; user-select:none; }
+        nav a { white-space:nowrap; }
+
+        /* Content starts invisible; JS makes it visible after bg renders */
+        #page-content {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #page-content.reveal {
+            pointer-events: auto;
+        }
+
+        /* Slide animations only play once .reveal is added */
+        #page-content.reveal .animate-slide-down {
+            animation: slideDownFade 1.4s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+        #page-content.reveal .animate-slide-up {
+            animation: slideUpFade 1.4s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+
+        /* Fade-in transition for the whole content block */
+        #page-content.fade-in {
+            animation: contentFadeIn 0.6s ease forwards;
+        }
+        @keyframes contentFadeIn {
+            0%  { opacity:0; }
+            100%{ opacity:1; }
+        }
+    </style>
 </head>
-<body>
-<main id="root" class="stale">
-  <header>
-    <span><span class="dot"></span><b id="name">Bot</b></span>
-    <a class="btn" href="admin.html">Log in</a>
-  </header>
+<body class="h-full w-full relative bg-black text-slate-100 flex flex-col justify-between overflow-hidden">
 
-  <h1 id="state">Loading…</h1>
-  <p class="sub" id="sub">Fetching the latest data.</p>
+    <!-- Background: renders immediately, no delay -->
+    <canvas id="particleCanvas" class="fixed inset-0 z-0 w-full h-full pointer-events-auto"></canvas>
 
-  <section class="pulse" aria-label="Ping history">
-    <svg id="chart" viewBox="0 0 600 96" preserveAspectRatio="none" role="img" aria-label="Ping chart">
-      <path class="area" id="area"/><path id="line"/>
-    </svg>
-    <p><span>Ping history</span><span id="range">–</span></p>
-  </section>
+    <!-- All page content: hidden until background has rendered for ~1.5s -->
+    <div id="page-content" class="relative z-10 flex flex-col justify-between w-full h-screen px-6 sm:px-12 lg:px-16 py-8 pointer-events-none">
 
-  <dl>
-    <dt>Username</dt><dd id="username">–</dd>
-    <dt>Status</dt><dd id="status">–</dd>
-    <dt>Ping</dt><dd id="ping">–</dd>
-    <dt>Servers</dt><dd id="guilds">–</dd>
-    <dt>Last update</dt><dd id="updated">–</dd>
-  </dl>
-  <div id="err" role="status"></div>
-  <footer id="foot"></footer>
-</main>
+        <!-- Header -->
+        <header class="animate-slide-down flex items-center justify-between w-full border-b border-white/[0.08] pb-6 pointer-events-auto">
+            <a href="index.html" class="flex items-center gap-3 group flex-shrink-0">
+                <img src="img/MDCT.png" class="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-105" alt="MDCT">
+            </a>
+            <nav class="flex items-center gap-6 sm:gap-8">
+                <a href="index.html"    class="text-sm font-medium text-white whitespace-nowrap">Home</a>
+                <a href="products.html" class="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Product &amp; Services</a>
+                <a href="disbot.html"   class="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Dis Bot</a>
+                <a href="contact.html"  class="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Contact</a>
+                <a href="login.html"    class="px-5 py-2.5 bg-gradient-to-b from-slate-800/80 to-slate-900/80 backdrop-blur-md border border-white/20 rounded-md text-xs font-semibold text-white tracking-wider uppercase transition-all duration-300 hover:border-white/60 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] whitespace-nowrap">Login</a>
+            </nav>
+        </header>
 
-<script>
-/* ============ SETTINGS ============ */
-const CONFIG = {
-  // Only public fields are requested here. Leave DATA_URL empty for demo mode.
-  DATA_URL: "https://kgupwuinbzlehopvvntu.supabase.co/rest/v1/bot_status?select=name,username,status,ping,guilds,updated_at&id=eq.1",
-  HEADERS: { apikey: "sb_publishable_It2zKEHriV_E_tDAUFoG4Q_gKU_tSRu" },
-  REFRESH_MS: 10000,      // how often the page checks for new data
-  OFFLINE_AFTER_S: 90     // data older than this is shown as offline
-};
+        <!-- Hero -->
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center my-auto py-6">
+            <div class="lg:col-span-4 flex items-center justify-start lg:justify-center animate-slide-down pointer-events-auto">
+                <img src="img/MDCT.png" class="w-44 sm:w-56 lg:w-72 h-auto object-contain drop-shadow-[0_0_35px_rgba(255,255,255,0.06)]" alt="MDCT">
+            </div>
+            <div class="lg:col-span-8 flex flex-col justify-center space-y-6 animate-slide-up pointer-events-auto">
+                <div>
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-white/[0.04] border border-white/10 rounded-sm text-xs font-mono text-slate-300 uppercase tracking-widest">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Event Hardware &amp; Digital Engineering
+                    </span>
+                </div>
+                <div class="space-y-1 py-1">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">Modern Digital</h1>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-300 to-slate-400 leading-[1.15]">Creative Technology</h1>
+                </div>
+                <div class="w-full text-slate-300 text-sm sm:text-base lg:text-lg font-light leading-relaxed space-y-4">
+                    <p>We are a pioneer in event technology hardware and professional stage execution. MDCT delivers premium lighting consoles, high-end moving fixtures, and complete event infrastructure — including state-of-the-art LED displays, pro audio sound systems, stage rigging, trussing, and bespoke decorative production. From intimate corporate gatherings to large-scale concert productions, our hardware division ensures every event is delivered at the highest standard.</p>
+                    <p>Beyond the physical stage, our digital engineering wing builds powerful software solutions tailored to modern enterprises. We develop custom full-stack web applications, intelligent Discord bots with AI integrations, automated workflows, and scalable backend systems — engineered for performance, reliability, and long-term growth. Whether you need a stunning public-facing platform or a robust internal toolset, MDCT's software team brings it to life.</p>
+                </div>
+                <div class="pt-2 flex flex-wrap gap-2.5">
+                    <span class="px-3 py-1.5 bg-white/[0.04] border border-white/10 rounded-sm text-xs font-mono text-slate-300">Lighting Consoles</span>
+                    <span class="px-3 py-1.5 bg-white/[0.04] border border-white/10 rounded-sm text-xs font-mono text-slate-300">LED &amp; Sound Rental</span>
+                    <span class="px-3 py-1.5 bg-white/[0.04] border border-white/10 rounded-sm text-xs font-mono text-slate-300">Stage Rigging</span>
+                    <span class="px-3 py-1.5 bg-white/[0.04] border border-white/10 rounded-sm text-xs font-mono text-slate-300">Full-Stack Development</span>
+                    <span class="px-3 py-1.5 bg-white/[0.04] border border-white/10 rounded-sm text-xs font-mono text-slate-300">Discord Bots</span>
+                </div>
+            </div>
+        </main>
 
-const $ = id => document.getElementById(id);
-const fmt = n => n == null ? "–" : Number(n).toLocaleString("en-US");
-let history = [];
-try { history = JSON.parse(localStorage.getItem("pingHistory") || "[]"); } catch (e) {}
+        <footer class="flex items-center justify-between w-full text-[11px] font-mono text-slate-500 pt-4 border-t border-white/[0.05] pointer-events-auto">
+            <p>&copy; MDCT. All rights reserved.</p>
+        </footer>
+    </div>
 
-function ago(ms){
-  const s = Math.max(0, Math.round(ms/1000));
-  if (s < 5) return "just now";
-  if (s < 60) return s + " seconds ago";
-  if (s < 3600) return Math.floor(s/60) + " min ago";
-  if (s < 86400) return Math.floor(s/3600) + " h ago";
-  return Math.floor(s/86400) + " d ago";
-}
-function normalize(r){
-  if (Array.isArray(r)) r = r[0] || {};
-  const t = v => v == null ? null : (typeof v === "number" ? v : Date.parse(v));
-  return { name:r.name, username:r.username, status:r.status, ping:r.ping, guilds:r.guilds, updatedAt:t(r.updated_at ?? r.updatedAt) };
-}
-function demo(){
-  return { name:"Demo Bot", username:"DemoBot#0000", status:"online", ping:38 + Math.round(Math.random()*40), guilds:12, updatedAt:Date.now() };
-}
-function setState(cls, title, sub){
-  $("root").className = cls; $("state").textContent = title; $("sub").textContent = sub;
-}
-function drawChart(){
-  const pts = history.slice(-60);
-  if (pts.length < 2){ $("line").setAttribute("d",""); $("area").setAttribute("d",""); $("range").textContent = "Waiting for data…"; return; }
-  const vals = pts.map(p => p.v), max = Math.max(...vals, 50), min = Math.min(...vals, 0);
-  const x = i => (i/(pts.length-1))*600, y = v => 86 - ((v-min)/(max-min||1))*76;
-  const d = pts.map((p,i) => (i?"L":"M") + x(i).toFixed(1) + " " + y(p.v).toFixed(1)).join(" ");
-  $("line").setAttribute("d", d);
-  $("area").setAttribute("d", d + " L600 96 L0 96 Z");
-  $("range").textContent = "low " + Math.min(...vals) + " ms, high " + Math.max(...vals) + " ms";
-}
-function render(b){
-  $("name").textContent = b.name || "Bot";
-  document.title = (b.name || "Bot") + " – Status";
-  $("username").textContent = b.username || "–";
-  $("ping").textContent = b.ping != null ? b.ping + " ms" : "–";
-  $("guilds").textContent = fmt(b.guilds);
-  const age = b.updatedAt ? Date.now() - b.updatedAt : Infinity;
-  $("updated").textContent = b.updatedAt ? ago(age) : "–";
-  const reportedOffline = b.status === "offline";
-  if (reportedOffline || age > CONFIG.OFFLINE_AFTER_S*1000){
-    setState("off", "Offline", b.updatedAt ? "Last seen " + ago(age) + "." : "No data from the bot yet.");
-    $("status").textContent = "Offline";
-  } else {
-    setState("on", "Online", "The bot is up and responding.");
-    $("status").textContent = "Online";
-    if (b.ping != null && b.updatedAt && !history.some(p => p.t === b.updatedAt)){
-      history.push({t:b.updatedAt, v:b.ping}); history = history.slice(-120);
-      try { localStorage.setItem("pingHistory", JSON.stringify(history)); } catch (e) {}
+    <script>
+    /* ── Reveal content after background has had time to render ── */
+    let bgFrames = 0;
+    const DELAY_MS = 200;
+    const revealAt = performance.now() + DELAY_MS;
+
+    function reveal() {
+        const el = document.getElementById('page-content');
+        el.classList.add('reveal', 'fade-in');
     }
-  }
-  drawChart();
-}
-let last = {};
-async function load(){
-  try {
-    if (!CONFIG.DATA_URL){ last = demo(); $("foot").textContent = "Demo mode: set CONFIG.DATA_URL in index.html for real data."; }
-    else {
-      const res = await fetch(CONFIG.DATA_URL, { headers: CONFIG.HEADERS, cache:"no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      last = normalize(await res.json());
-    }
-    $("err").textContent = "";
-  } catch (e) {
-    $("err").textContent = "Could not fetch data (" + e.message + "). Showing the last known data.";
-  }
-  render(last);
-}
-setInterval(() => render(last), 1000);
-load(); setInterval(load, CONFIG.REFRESH_MS);
-</script>
+
+    /* ── Background canvas ── */
+    (function(){
+        const canvas=document.getElementById('particleCanvas');if(!canvas)return;
+        const ctx=canvas.getContext('2d');
+        let W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
+        const hexR=38,hexW=Math.sqrt(3)*hexR,hexRS=hexR*1.5;
+        let mouse={x:-1000,y:-1000};
+        window.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+        window.addEventListener('resize',()=>{W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;});
+        const pts=[];
+        for(let i=0;i<50;i++) pts.push({x:Math.random()*W,y:Math.random()*H,size:Math.random()*5+3,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,angle:Math.random()*Math.PI*2,vRot:(Math.random()-.5)*.012,type:Math.floor(Math.random()*3)});
+        function hex(x,y,r){ctx.beginPath();for(let i=0;i<6;i++){const a=(Math.PI/3)*i-(Math.PI/6);if(!i)ctx.moveTo(x+r*Math.cos(a),y+r*Math.sin(a));else ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a));}ctx.closePath();}
+        function dp(p){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=0.9;
+            if(p.type===0){ctx.beginPath();ctx.moveTo(0,-p.size);ctx.lineTo(p.size*.6,0);ctx.lineTo(0,p.size);ctx.lineTo(-p.size*.6,0);ctx.closePath();ctx.stroke();}
+            else if(p.type===1){const s=p.size*.7;ctx.beginPath();ctx.rect(-s/2,-s/2,s,s);ctx.stroke();}
+            else{ctx.beginPath();ctx.moveTo(0,-p.size*.8);ctx.lineTo(p.size*.7,p.size*.6);ctx.lineTo(-p.size*.7,p.size*.6);ctx.closePath();ctx.stroke();}
+            ctx.restore();}
+        let revealed=false;
+        function render(){
+            ctx.clearRect(0,0,W,H);
+            const cols=Math.ceil(W/hexW)+3,rows=Math.ceil(H/hexRS)+3;
+            for(let r=-1;r<rows;r++){const y=r*hexRS,xo=(r%2!==0)?hexW/2:0;
+                for(let c=-1;c<cols;c++){const x=c*hexW+xo,dx=x-mouse.x,dy=y-mouse.y,d=Math.sqrt(dx*dx+dy*dy);
+                    let a=0.02;if(d<500)a=0.03+(1-d/500)*.035;
+                    ctx.strokeStyle=`rgba(255,255,255,${a})`;ctx.lineWidth=0.6;hex(x,y,hexR);ctx.stroke();}}
+            for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+                const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+                if(d<150){ctx.strokeStyle=`rgba(255,255,255,${(1-d/150)*.18})`;ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}}
+            for(const p of pts){p.x+=p.vx;p.y+=p.vy;p.angle+=p.vRot;
+                if(p.x<-20)p.x=W+20;if(p.x>W+20)p.x=-20;if(p.y<-20)p.y=H+20;if(p.y>H+20)p.y=-20;dp(p);}
+            // Trigger reveal once delay has passed
+            if(!revealed&&performance.now()>=revealAt){revealed=true;reveal();}
+            requestAnimationFrame(render);
+        }
+        render();
+    })();
+    </script>
 </body>
 </html>

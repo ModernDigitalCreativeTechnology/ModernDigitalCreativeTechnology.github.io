@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<title>MDCT — Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#000;--surface:rgba(255,255,255,0.03);--ink:#ededed;--muted:#64748b;--line:rgba(255,255,255,0.08);--ok:#34d399;--bad:#f87171;--warn:#fbbf24;--accent:#34d399;--onaccent:#022c22;
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100vh}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5}
+/* Layout */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--line);padding:24px 16px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:12px}
+.sidebar-logo img{width:32px;height:32px;object-fit:contain}
+.sidebar-logo span{font-weight:700;font-size:.95rem;letter-spacing:-.02em}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:.875rem;color:var(--muted);border:none;background:none;width:100%;text-align:left;transition:background .15s,color .15s}
+.nav-item:hover{background:var(--surface);color:var(--ink)}
+.nav-item.active{background:rgba(52,211,153,0.08);color:var(--ok)}
+.nav-item .icon{font-size:1rem;width:20px;text-align:center}
+.sidebar-spacer{flex:1}
+.sidebar-bottom{padding-top:12px;border-top:1px solid var(--line)}
+.main-content{flex:1;overflow-y:auto;padding:clamp(16px,3vw,40px)}
+/* Panes */
+.pane{display:none} .pane.active{display:block}
+/* Top bar in main */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.topbar h1{font-size:1.5rem;font-weight:700;letter-spacing:-.03em;margin:0}
+.topbar .user{font-size:.8rem;font-family:var(--mono);color:var(--muted)}
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:16px}
+.card h2{font-size:.85rem;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 12px}
+/* Status hero */
+.status-hero{font-size:3rem;font-weight:800;line-height:1;letter-spacing:-.04em;margin:4px 0}
+.status-hero.on{color:var(--ok)} .status-hero.off{color:var(--bad)}
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px}
+.stat .label{font-size:.75rem;font-family:var(--mono);color:var(--muted);margin-bottom:4px}
+.stat .value{font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums}
+/* Ping chart */
+.ping-chart-wrap{position:relative;height:140px;margin-top:8px}
+/* Gauge */
+.gauge{margin:10px 0}
+.gauge-row{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:5px}
+.gauge-row span:first-child{color:var(--muted)}
+.gauge-row span:last-child{font-family:var(--mono);font-weight:600}
+.track{height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--accent);border-radius:3px;transition:width .6s}
+/* DL */
+dl{margin:12px 0 0;display:grid;grid-template-columns:1fr auto;gap:0}
+dt,dd{margin:0;padding:10px 0;border-bottom:1px solid var(--line);font-size:.875rem}
+dt{color:var(--muted)} dd{text-align:right;font-weight:600;font-family:var(--mono);word-break:break-all}
+/* Pulse */
+.pulse svg{display:block;width:100%;height:70px}
+.pulse path{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.pulse .area{fill:var(--accent);opacity:.08;stroke:none}
+/* Tabs (settings) */
+.inner-tabs{display:flex;gap:8px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:20px}
+button.itab{font:inherit;cursor:pointer;border-radius:6px;padding:6px 14px;font-size:.85rem;font-weight:600;border:1px solid var(--line);background:transparent;color:var(--muted);transition:.15s}
+button.itab.active{color:var(--ink);border-color:rgba(52,211,153,.5);color:var(--ok)}
+/* Form */
+label{display:block;font-size:.8rem;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 6px}
+input[type=text],input[type=email],input[type=password],input[type=number],textarea,select{width:100%;font:inherit;color:var(--ink);background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:8px;padding:10px 14px;outline:none;transition:border-color .2s;font-size:.9rem}
+input:focus,textarea:focus,select:focus{border-color:rgba(52,211,153,.5)}
+select option{background:#111}
+textarea{min-height:160px;resize:vertical}
+.hint{color:var(--muted);font-size:.78rem;margin:4px 0 0;font-family:var(--mono)}
+.row-toggle{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid var(--line);padding:14px 0}
+.row-toggle label{margin:0;font-size:.875rem;color:var(--ink);text-transform:none;letter-spacing:0;font-family:var(--font)}
+.row-toggle input{width:22px;height:22px;accent-color:var(--accent)}
+button.primary{font:inherit;cursor:pointer;border-radius:8px;font-weight:600;border:none;background:var(--ok);color:var(--onaccent);padding:11px 24px;margin-top:20px;font-size:.9rem;transition:opacity .15s}
+button.primary:hover{opacity:.85}
+button.primary:disabled{opacity:.4;cursor:default}
+button.ghost-btn{font:inherit;cursor:pointer;border-radius:8px;font-weight:500;border:1px solid var(--line);background:transparent;color:var(--muted);padding:9px 18px;font-size:.85rem;transition:.15s}
+button.ghost-btn:hover{border-color:rgba(255,255,255,.25);color:var(--ink)}
+/* Server list */
+.item{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--line);font-size:.875rem}
+.item small{color:var(--muted)}
+/* Log */
+.log-entry{padding:12px 0;border-bottom:1px solid var(--line)}
+.log-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:.78rem;color:var(--muted);margin-bottom:4px}
+.log-tag{border:1px solid var(--line);border-radius:4px;padding:0 6px;color:var(--ink)}
+.log-tag.ai{color:var(--ok)} .log-tag.slash{color:var(--warn)}
+.log-who{color:var(--ink);font-weight:600}
+.log-txt{font-size:.875rem;white-space:pre-wrap;word-break:break-word}
+.toolbar{display:flex;gap:10px;align-items:center;margin:12px 0 4px}
+#msg{margin-top:12px;min-height:1.4em;font-size:.875rem;font-family:var(--mono)}
+.ok-msg{color:var(--ok)} .err-msg{color:var(--bad)}
+.hidden{display:none!important}
+:focus-visible{outline:2px solid var(--ok);outline-offset:3px}
+/* Mobile */
+@media(max-width:640px){.layout{flex-direction:column}.sidebar{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;padding:12px;border-right:none;border-bottom:1px solid var(--line)}.sidebar-logo{display:none}.sidebar-spacer,.sidebar-bottom{display:none}}
+</style>
+</head>
+<body>
+
+<!-- Auth guard: redirect to login if not logged in -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL='https://kgupwuinbzlehopvvntu.supabase.co';
+const SUPABASE_KEY='sb_publishable_It2zKEHriV_E_tDAUFoG4Q_gKU_tSRu';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+// Quick guard before paint
+db.auth.getSession().then(({data})=>{if(!data.session)window.location.href='login.html';});
+</script>
+
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="img/MDCT.png" alt="MDCT">
+            <span>MDCT Admin</span>
+        </div>
+        <button class="nav-item active" data-tab="overview"><span class="icon">📊</span> Overview</button>
+        <button class="nav-item" data-tab="servers"><span class="icon">🗂️</span> Servers</button>
+        <button class="nav-item" data-tab="logs"><span class="icon">📋</span> Logs</button>
+        <button class="nav-item" data-tab="settings"><span class="icon">⚙️</span> Settings</button>
+        <div class="sidebar-spacer"></div>
+        <div class="sidebar-bottom">
+            <!-- Back to Home also logs out -->
+            <button class="nav-item" id="homeBtn"><span class="icon">🏠</span> Back to Home</button>
+            <button class="nav-item" id="logoutBtn"><span class="icon">🚪</span> Log out</button>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-content">
+        <div class="topbar">
+            <h1 id="pageTitle">Overview</h1>
+            <span class="user" id="whoLabel"></span>
+        </div>
+
+        <!-- Overview -->
+        <div class="pane active" id="pane-overview">
+            <div class="stats-grid">
+                <div class="stat"><div class="label">Status</div><div class="value" id="st-status">–</div></div>
+                <div class="stat"><div class="label">Ping</div><div class="value" id="st-ping">–</div></div>
+                <div class="stat"><div class="label">Servers</div><div class="value" id="st-guilds">–</div></div>
+                <div class="stat"><div class="label">Updated</div><div class="value" id="st-updated" style="font-size:.9rem">–</div></div>
+            </div>
+            <div class="card">
+                <h2>Ping History</h2>
+                <div class="pulse">
+                    <svg viewBox="0 0 600 70" preserveAspectRatio="none" id="p-bars"></svg>
+                </div>
+                <p style="font-size:.78rem;font-family:var(--mono);color:var(--muted);margin:6px 0 0;display:flex;justify-content:space-between"><span>Ping (last 60 reads)</span><span id="p-range">–</span></p>
+            </div>
+            <div class="card">
+                <h2>Bot Details</h2>
+                <dl>
+                    <dt>Name</dt><dd id="d-name">–</dd>
+                    <dt>Username</dt><dd id="d-uname">–</dd>
+                    <dt>Status</dt><dd id="d-status">–</dd>
+                    <dt>Ping</dt><dd id="d-ping">–</dd>
+                    <dt>Servers</dt><dd id="d-guilds">–</dd>
+                    <dt>Total members</dt><dd id="d-users">–</dd>
+                    <dt>Last update</dt><dd id="d-updated">–</dd>
+                </dl>
+            </div>
+            <div class="card">
+                <h2>System (VPS)</h2>
+                <div class="gauge"><div class="gauge-row"><span>CPU</span><span id="cpuVal">–</span></div><div class="track"><i id="cpuBar"></i></div></div>
+                <div class="gauge"><div class="gauge-row"><span>RAM</span><span id="ramVal">–</span></div><div class="track"><i id="ramBar"></i></div></div>
+                <div class="gauge"><div class="gauge-row"><span>Storage</span><span id="diskVal">–</span></div><div class="track"><i id="diskBar"></i></div></div>
+                <dl>
+                    <dt>Bot process memory</dt><dd id="d-rss">–</dd>
+                    <dt>Bot process uptime</dt><dd id="d-botup">–</dd>
+                    <dt>Load avg (1 min)</dt><dd id="d-load">–</dd>
+                    <dt>Node.js</dt><dd id="d-node">–</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Servers -->
+        <div class="pane" id="pane-servers">
+            <p class="hint" id="srvCount" style="margin-bottom:16px">–</p>
+            <div id="srvList"></div>
+        </div>
+
+        <!-- Logs -->
+        <div class="pane" id="pane-logs">
+            <div class="toolbar">
+                <label for="logType" style="margin:0;font-size:.85rem;color:var(--muted)">Type</label>
+                <select id="logType" style="width:auto"><option value="">All</option><option value="ai">AI</option><option value="prefix">Prefix</option><option value="slash">Slash</option></select>
+            </div>
+            <div id="logList"></div>
+        </div>
+
+        <!-- Settings -->
+        <div class="pane" id="pane-settings">
+            <p class="hint" style="margin-bottom:20px">Changes apply within about 15 seconds.</p>
+            <form id="cfgForm">
+                <label for="prefix">Command prefix</label>
+                <input id="prefix" type="text" maxlength="3" required pattern="\S{1,3}">
+                <p class="hint">1–3 characters, no spaces.</p>
+                <div class="row-toggle" style="margin-top:16px"><label for="ai">Kimi (AI) enabled</label><input id="ai" type="checkbox"></div>
+                <label for="rpm">AI requests per minute</label>
+                <input id="rpm" type="number" min="1" max="200" required>
+                <label for="activity">Bot activity status</label>
+                <input id="activity" type="text" maxlength="128">
+                <p class="hint">Leave empty to clear.</p>
+                <label for="prompt">Kimi system prompt</label>
+                <textarea id="prompt" maxlength="6000"></textarea>
+                <p class="hint">Empty = use built-in prompt. Changing it resets ongoing conversations.</p>
+                <button class="primary" id="saveBtn" type="submit">Save settings</button>
+            </form>
+        </div>
+
+        <div id="msg" role="status"></div>
+    </div>
+</div>
+
+<script>
+const OFFLINE_S=90, REFRESH_MS=8000;
+const $=id=>document.getElementById(id);
+let tab='overview', timer=null, pingHist=[];
+try{pingHist=JSON.parse(localStorage.getItem('mdct_pingHist')||'[]');}catch(e){}
+
+function ago(ms){const s=Math.max(0,Math.round(ms/1000));if(s<5)return'just now';if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';return Math.floor(s/3600)+'h ago';}
+function dur(s){s=Math.floor(s);const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return(d?d+'d ':'')+((h||d)?h+'h ':'')+m+'m';}
+function num(n,d='–'){return n==null?d:Number(n).toLocaleString('en-US');}
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function say(t,c){$('msg').textContent=t||'';$('msg').className=c||'';}
+
+/* ── Tabs ── */
+function showTab(t){
+    tab=t;
+    document.querySelectorAll('.nav-item[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+    document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('active',p.id==='pane-'+t));
+    $('pageTitle').textContent={overview:'Overview',servers:'Servers',logs:'Logs',settings:'Settings'}[t]||t;
+    say('');if(t==='logs')loadLogs();
+}
+document.querySelectorAll('.nav-item[data-tab]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+$('logType').addEventListener('change',loadLogs);
+
+/* ── Ping chart ── */
+function drawChart(){
+    const svg=$('p-bars'),pts=pingHist.slice(-60);
+    if(!pts.length){svg.innerHTML='';$('p-range').textContent='Waiting…';return;}
+    const v=pts.map(p=>p.v),mx=Math.max(...v,50);
+    const slot=600/60,bw=slot*0.8,off=600-pts.length*slot; // bar terbaru rata kanan
+    svg.innerHTML=pts.map((p,i)=>{
+        const h=Math.max(2,(p.v/mx)*64),x=off+i*slot+(slot-bw)/2;
+        return '<rect x="'+x.toFixed(1)+'" y="'+(70-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="1" fill="var(--accent)" opacity=".75"><title>'+p.v+' ms</title></rect>';
+    }).join('');
+    $('p-range').textContent='low '+Math.min(...v)+' ms, high '+Math.max(...v)+' ms';
+}
+function gauge(id,pct,label){
+    const p=pct==null?0:Math.max(0,Math.min(100,pct));
+    $(id+'Bar').style.width=p+'%';
+    $(id+'Bar').style.background=p>=85?'var(--bad)':p>=65?'var(--warn)':'var(--accent)';
+    $(id+'Val').textContent=label;
+}
+
+/* ── Overview data ── */
+function renderStatus(s){
+    s=s||{};
+    const t=s.updated_at?Date.parse(s.updated_at):null, age=t?Date.now()-t:Infinity;
+    const online=s.status!=='offline'&&age<OFFLINE_S*1000;
+    $('st-status').textContent=online?'Online':'Offline';
+    $('st-status').style.color=online?'var(--ok)':'var(--bad)';
+    $('st-ping').textContent=s.ping!=null?s.ping+' ms':'–';
+    $('st-guilds').textContent=s.guilds??'–';
+    $('st-updated').textContent=t?ago(age):'–';
+    $('d-name').textContent=s.name||'–';$('d-uname').textContent=s.username||'–';
+    $('d-status').textContent=online?'Online':'Offline';
+    $('d-ping').textContent=s.ping!=null?s.ping+' ms':'–';
+    $('d-guilds').textContent=num(s.guilds);$('d-updated').textContent=t?ago(age):'–';
+    if(online&&s.ping!=null&&t&&!pingHist.some(p=>p.t===t)){
+        pingHist.push({t,v:s.ping});pingHist=pingHist.slice(-120);
+        try{localStorage.setItem('mdct_pingHist',JSON.stringify(pingHist));}catch(e){}
+    }
+    drawChart();
+}
+function renderPrivate(p){
+    if(!p){['cpu','ram','disk'].forEach(k=>gauge(k,null,'–'));$('d-users').textContent='–';$('srvCount').textContent='No data yet.';return;}
+    gauge('cpu',p.cpu_percent,p.cpu_percent!=null?p.cpu_percent+'% of '+p.cpu_cores+' cores':'–');
+    gauge('ram',p.ram_total_mb?p.ram_used_mb/p.ram_total_mb*100:null,num(p.ram_used_mb)+' / '+num(p.ram_total_mb)+' MB');
+    gauge('disk',p.disk_total_gb?p.disk_used_gb/p.disk_total_gb*100:null,p.disk_total_gb?p.disk_used_gb+' / '+p.disk_total_gb+' GB':'n/a');
+    $('d-rss').textContent=num(p.bot_rss_mb)+' MB';$('d-botup').textContent=p.bot_uptime_s!=null?dur(p.bot_uptime_s):'–';
+    $('d-load').textContent=p.load1??'–';$('d-node').textContent=p.node_version||'–';$('d-users').textContent=num(p.users);
+    const g=Array.isArray(p.guilds)?p.guilds:[];
+    $('srvCount').textContent=g.length+' servers';
+    $('srvList').replaceChildren(...g.map(x=>{const r=el('div','item'),l=el('div');l.append(el('div',null,x.name),el('small',null,'ID '+x.id));r.append(l,el('span',null,num(x.members)+' members'));return r;}));
+}
+let histLoaded=false;
+async function loadPingHistory(){
+    try{
+        const {data,error}=await db.from('ping_history').select('ping,created_at').eq('bot_id',1).order('created_at',{ascending:false}).limit(120);
+        if(error||!data||!data.length)return;
+        pingHist=data.reverse().map(r=>({t:Date.parse(r.created_at),v:r.ping}));
+    }catch(e){}
+}
+async function refresh(){
+    if(!histLoaded){histLoaded=true;await loadPingHistory();}
+    const[s,p]=await Promise.all([
+        db.from('bot_status').select('*').eq('id',1).maybeSingle(),
+        db.from('bot_private').select('*').eq('id',1).maybeSingle()
+    ]);
+    renderStatus(s.data);renderPrivate(p.data);
+    if(tab==='logs')loadLogs();
+}
+
+/* ── Logs ── */
+async function loadLogs(){
+    let q=db.from('bot_logs').select('*').order('created_at',{ascending:false}).limit(100);
+    if($('logType').value)q=q.eq('type',$('logType').value);
+    const{data,error}=await q;
+    if(error){say('Could not read logs: '+error.message,'err-msg');return;}
+    $('logList').replaceChildren(...(data.length?data:[]).map(r=>{
+        const d=el('div','log-entry'),m=el('div','log-meta');
+        m.append(el('span',null,new Date(r.created_at).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',second:'2-digit'})),
+            el('span','log-tag '+r.type,r.type),el('span','log-who',r.user_tag||'?'),el('span',null,(r.guild||'DM')+(r.channel?' #'+r.channel:'')));
+        d.append(m,el('div','log-txt',r.content||''));return d;
+    }));
+    if(!data.length)$('logList').replaceChildren(el('p',null,'No log entries yet.'));
+}
+
+/* ── Settings ── */
+async function loadConfig(){
+    const{data,error}=await db.from('bot_config').select('*').eq('id',1).maybeSingle();
+    if(error||!data){say('Could not read settings.','err-msg');return;}
+    $('prefix').value=data.prefix;$('ai').checked=data.ai_enabled;$('rpm').value=data.max_rpm;
+    $('activity').value=data.activity;$('prompt').value=data.system_prompt;
+}
+$('cfgForm').addEventListener('submit',async e=>{
+    e.preventDefault();$('saveBtn').disabled=true;say('Saving…');
+    const{data,error}=await db.from('bot_config').update({
+        prefix:$('prefix').value,ai_enabled:$('ai').checked,max_rpm:parseInt($('rpm').value,10),
+        activity:$('activity').value.trim(),system_prompt:$('prompt').value.trim(),updated_at:new Date().toISOString()
+    }).eq('id',1).select();
+    $('saveBtn').disabled=false;
+    if(error)say('Could not save: '+error.message,'err-msg');
+    else if(!data||!data.length)say('Denied: account not authorised to change settings.','err-msg');
+    else say('Saved. The bot will apply it within about 15 seconds.','ok-msg');
+});
+
+/* ── Auth ── */
+$('logoutBtn').addEventListener('click',async()=>{
+    await db.auth.signOut();
+    window.location.href='login.html';
+});
+
+// Back to home = logout + redirect
+$('homeBtn').addEventListener('click',async()=>{
+    await db.auth.signOut();
+    window.location.href='index.html';
+});
+
+function setLoggedIn(session){
+    if(!session){window.location.href='login.html';return;}
+    $('whoLabel').textContent=session.user.email;
+    clearInterval(timer);
+    showTab('overview');loadConfig();refresh();
+    timer=setInterval(refresh,REFRESH_MS);
+}
+db.auth.onAuthStateChange((_evt,session)=>setTimeout(()=>setLoggedIn(session),0));
+db.auth.getSession().then(({data})=>{if(!data.session)window.location.href='login.html';});
+</script>
+</body>
+</html>
